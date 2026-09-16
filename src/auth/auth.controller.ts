@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto.js';
 import { AuthService } from './auth.service.js';
 import { JwtAuthGuard } from './guards/auth.guard.js';
 import type { Request, Response } from 'express';
+import { authCookieOptions, clearCookieOptions } from '../config/cookie.config.js';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -47,7 +48,7 @@ export class AuthController {
     @ApiOperation({ summary: 'Log out', description: 'Clears the auth cookie. Works even if the user is not currently authenticated.' })
     @ApiResponse({ status: 200, description: 'Auth cookie cleared', schema: { example: { message: 'Logged out successfully' } } })
     logout(@Res({ passthrough: true }) res: Response) {
-        res.clearCookie('token');
+        res.clearCookie('token', clearCookieOptions());
         return { message: 'Logged out successfully' };
     }
 
@@ -62,11 +63,6 @@ export class AuthController {
     }
 
     private setTokenCookie(res: Response, token: string) {
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 7 * 24 * 60 * 60 * 1000,
-        });
+        res.cookie('token', token, authCookieOptions());
     }
 }

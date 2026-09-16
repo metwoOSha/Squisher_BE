@@ -20,6 +20,19 @@ async function bootstrap() {
     const app = await NestFactory.create(AppModule, { abortOnError: false });
     app.useGlobalPipes(new ValidationPipe());
     app.use(cookieParser());
+
+    const allowedOrigins = (process.env.CORS_ORIGINS ?? '')
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter(Boolean);
+
+    if (allowedOrigins.length) {
+        app.enableCors({ origin: allowedOrigins, credentials: true });
+        console.info('[bootstrap] CORS enabled for', allowedOrigins.join(', '));
+    } else {
+        console.info('[bootstrap] CORS_ORIGINS not set — cross-origin browser requests will be blocked');
+    }
+
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('api-docs', app, document);
     await app.listen(process.env.PORT ?? 3000);

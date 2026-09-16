@@ -17,9 +17,9 @@ import { APP_GUARD } from '@nestjs/core';
             },
         ]),
         PrismaModule,
-        LinksModule,
         AuthModule,
         UsersModule,
+        LinksModule,
     ],
     providers: [
         {
