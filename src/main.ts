@@ -21,16 +21,19 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe());
     app.use(cookieParser());
 
-    const allowedOrigins = (process.env.CORS_ORIGINS ?? '')
+    const configuredOrigins = (process.env.CORS_ORIGINS ?? '')
         .split(',')
         .map((origin) => origin.trim())
         .filter(Boolean);
+
+    const allowedOrigins =
+        configuredOrigins.length || process.env.NODE_ENV === 'production' ? configuredOrigins : ['http://localhost:5173'];
 
     if (allowedOrigins.length) {
         app.enableCors({ origin: allowedOrigins, credentials: true });
         console.info('[bootstrap] CORS enabled for', allowedOrigins.join(', '));
     } else {
-        console.info('[bootstrap] CORS_ORIGINS not set — cross-origin browser requests will be blocked');
+        console.info('[bootstrap] CORS_ORIGINS not set — browser requests from the frontend will be blocked');
     }
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);
